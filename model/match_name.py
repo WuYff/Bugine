@@ -4,6 +4,7 @@ from ngram import NGram
 import os
 import numpy as np
 from model import util
+from model import nlp_util
 
 # import matplotlib.pyplot as plt
 # import spacy
@@ -142,32 +143,34 @@ def test():
 
 
 if __name__ == "__main__":
-    from model import nlp_util
     reload = util.Reload()
 
     next_list = []
-    with open("tsv/hakr_AnExplorer_master.tsv", 'r', encoding='utf8') as next_f:
+    with open("./data/description/hakr_AnExplorer_master.csv", 'r', encoding='utf8') as next_f:
         # with open("tsv/nextcloud_android_master.tsv", 'r', encoding='utf8') as next_f:
-        tsvreader = csv.reader(next_f, delimiter="\t")
+        tsvreader = csv.reader(next_f)
         for line in tsvreader:
             next_list.append(line)
 
     own_list = []
     # with open("tsv/owncloud_android_master.tsv", 'r', encoding='utf8') as own_f:
-    with open("tsv/tasks_tasks_master.tsv", 'r', encoding='utf8') as own_f:
-        tsvreader = csv.reader(own_f, delimiter="\t")
+    with open("./data/description/tasks_tasks_master.csv", 'r', encoding='utf8') as own_f:
+        tsvreader = csv.reader(own_f)
         for line in tsvreader:
             own_list.append(line)
 
-    next_list, own_list = map(nlp_util.process_tsv, [next_list, own_list])
+    next_list = nlp_util.process_xsv(next_list)
+    own_list = nlp_util.process_xsv(own_list)
+
     list_score = weight_compare_list(
         own_list, next_list, ngram_compare, [0.5, 0.5, 1])
     print("len:", len(list_score))
     pp.pprint(list_score)
-    import map_issue
 
-    a = map_issue.filter_search_keys(list_score, threshold=0.6)
-    print("0" * 50)
-    pp.pprint(a)
+    # import map_issue
+    #
+    # a = map_issue.filter_search_keys(list_score, threshold=0.6)
+    # print("0" * 50)
+    # pp.pprint(a)
 
     # test()
