@@ -5,6 +5,7 @@ import os
 import numpy as np
 from model import util
 from model import nlp_util
+from model import tmp
 
 # import matplotlib.pyplot as plt
 # import spacy
@@ -42,7 +43,6 @@ def weight_compare_list(source_wl, target_wl, comp_func, weight_list=None):
     for w1 in source_wl:
         score_max = -1
         for w2 in target_wl:
-
             # compare each word by the sequence
             _score_list = []
             zipped = zip(w1, w2)
@@ -54,6 +54,7 @@ def weight_compare_list(source_wl, target_wl, comp_func, weight_list=None):
             _w2 = ""
             zipped = zip(w1, w2, weight_list)
             for z in zipped:
+
                 tmp_w1, tmp_w2, w = z
                 _w1 += "^".join(tmp_w1) if w != 0 else "#"
                 _w1 += "="
@@ -111,7 +112,7 @@ def test():
         full_path = os.path.join(path, file)
         print(full_path)
         tmp_out = util.read_tsv(full_path)
-        out_dict[file] = nlp_util.process_tsv(tmp_out)
+        out_dict[file] = nlp_util.process_xsv(tmp_out)
 
     print("file count", count)
 
@@ -161,16 +162,14 @@ if __name__ == "__main__":
 
     next_list = nlp_util.process_xsv(next_list)
     own_list = nlp_util.process_xsv(own_list)
-
+    print(own_list)
     list_score = weight_compare_list(
         own_list, next_list, ngram_compare, [0.5, 0.5, 1])
     print("len:", len(list_score))
     pp.pprint(list_score)
 
-    # import map_issue
-    #
-    # a = map_issue.filter_search_keys(list_score, threshold=0.6)
-    # print("0" * 50)
-    # pp.pprint(a)
+    a = tmp.filter_search_keys(list_score, threshold=0.6)
+    print("0" * 50)
+    pp.pprint(a)
 
     # test()

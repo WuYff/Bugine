@@ -189,8 +189,8 @@ def _pre_calc(**kwargs):
     c_label = nlp_util.get_concern_label()
 
     ess_keys = set()
-    for r in keys_sea:
-        for a_list in r:
+    for r in keys_sea:  # 筛选出来的那些描述文件中的行[[,,]....]
+        for a_list in r:  #一个r应该有三个list
             ess_keys = ess_keys.union(a_list)
     ess_keys = " ".join(list(ess_keys))
     ess_keys = nlp_util.stem_sentence(ess_keys)
@@ -235,7 +235,7 @@ def query_issue(scan_output, max_depth=4):
                     order by length(body) desc"""
     overall_table = {}
     # 所有相关app和item
-    for i in range(min(len(scan_output), max_depth)):
+    for i in range(min(len(scan_output), max_depth)): #对于一个数据库中的app
         one_dict = {}
         app = scan_output[i][0]
         one_dict['sim'] = scan_output[i][1]
@@ -250,7 +250,7 @@ def query_issue(scan_output, max_depth=4):
 
         output = rdb.db_retrieve(sql.format(tab_name))
         head = ["issue_num", "comments", "state", "title", "body", "commit_id", "labels"]
-        f_output = issuedb.retrieve_formatter(head, output)
+        f_output = issuedb.retrieve_formatter(head, output) #应该就是把某个app的所有的issue选出来了
 
         title_list = util.get_col(output, head.index('title'))
         body_list = util.get_col(output, head.index('body'))
@@ -265,8 +265,8 @@ def query_issue(scan_output, max_depth=4):
         for k in keys_sea:
             keys = []
             for i in k:
-                keys.append(" ".join(i))
-            keys = " ".join(keys)
+                keys.append(" ".join(i)) #keys的长度应该就是3
+            keys = " ".join(keys)  #keys变成了一个String(?)
             ess_keys = nlp_util.stem_sentence(keys)
 
             tmp = search_rank.sort_candidate_seq(f_output, ess_keys, pre_calc_val)
@@ -377,9 +377,13 @@ def valid_key(key):
 
 
 if __name__ == '__main__':
-    pass
-    # test = util.read_csv("model/data/description/owncloud_android_master.csv")
-    # scan_output = descript(test, except_files="owncloud_android", pool_size=12)
-    # overall_table = query_issue(scan_output, max_depth=3)
-    # overall_sort = sort_result_table(overall_table)
-    # out = get_out(overall_sort, overall_table)
+    # pass
+    test = util.read_csv("model/data/description/owncloud_android_master.csv")
+    # print(test)
+    scan_output = descript(test, except_files="owncloud_android", pool_size=3)
+    print("!!!!")
+    print( (util.get_col(scan_output, [0, 1])))
+    overall_table = query_issue(scan_output, max_depth=3)
+    overall_sort = sort_result_table(overall_table)
+    out = get_out(overall_sort, overall_table)
+

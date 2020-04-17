@@ -1,13 +1,13 @@
 import os
 import random
-import issuedb
-import match_name
-import util
-import nlp_util
-import search_rank
-import table2tsv
-import url_repo
-import eval_test
+from model import issuedb
+from model  import match_name
+from model  import util
+from model  import nlp_util
+from model import search_rank
+from model import table2tsv
+from model import url_repo
+# import eval_test
 import logging
 
 pp = util.PrintWarp()
@@ -459,12 +459,12 @@ for nam in lt:
 
     out = util.read_csv(f"merge/Ziqiang_{nam}_merged.csv", encoding='utf-8-sig')
     logger.info(nam)
-    re_ct = eval_test.topk(out)
+    # re_ct = eval_test.topk(out)
 
     merge_a = f"label/{nam}6.csv"
     merge_b = f'data/Ziqiang_{nam}_shuffled.csv'
 
     logger.info("update")
-    out = eval_test.merge_csv_file(merge_a, merge_b)
-    re_ct = eval_test.topk(out)
+    # out = eval_test.merge_csv_file(merge_a, merge_b)
+    # re_ct = eval_test.topk(out)
     util.dump_csv("tmp/test.csv", out, encoding='utf-8-sig')

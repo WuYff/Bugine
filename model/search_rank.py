@@ -20,7 +20,7 @@ def get_key_sea_count(all_key, text, unique=False):
     return copy.deepcopy(count_dict)
 
 
-def get_key_sea_count_corpus(all_key, corpus, unique=False):
+def get_key_sea_count_corpus(all_key, corpus, unique=False)->list:
     key_count = []
     if type(all_key) != set:
         all_key = set(all_key)
