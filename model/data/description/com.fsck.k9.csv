@@ -1,0 +1,15 @@
+XML_file_name,View_name,Resource_name
+unread_widget_option,item,done
+unread_widget_layout,TextView,title
+unread_widget_layout,TextView,unread_count
+message_list_widget_loading,TextView,loadingText
+message_list_widget_list_item,TextView,chip
+message_list_widget_list_item,TextView,mail_date
+message_list_widget_list_item,TextView,sender
+message_list_widget_list_item,TextView,mail_subject
+message_list_widget_list_item,TextView,mail_preview
+message_list_widget_list_item,ImageView,attachment
+message_list_widget_layout,LinearLayout,top_controls
+message_list_widget_layout,ListView,listView
+message_list_widget_layout,TextView,folder
+message_list_widget_layout,ImageButton,new_message

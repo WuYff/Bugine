@@ -180,11 +180,11 @@ def _pre_calc(**kwargs):
     :param kwargs: must need title_list, body_list, keys_sea
     :return: pre_calc dict
     """
-    title_list = kwargs["title_list"]
     body_list = kwargs["body_list"]
     keys_sea = kwargs["keys_sea"]
-    label_list = kwargs["label_list"]
-    reply_list = kwargs["reply_list"]
+    # title_list = kwargs["title_list"]
+    # label_list = kwargs["label_list"]
+    # reply_list = kwargs["reply_list"]
     hot_k = nlp_util.get_hot_keys()
     c_label = nlp_util.get_concern_label()
 
@@ -197,23 +197,23 @@ def _pre_calc(**kwargs):
     ess_keys = set(ess_keys)
 
     body_len = [nlp_util.word_count(b) for b in body_list]
-    title_list, body_list = map(nlp_util.stem_corpus, [title_list, body_list])
-    label_list = nlp_util.split_label(label_list)
-    label_list = nlp_util.stem_corpus(label_list)
+    # title_list, body_list = map(nlp_util.stem_corpus, [title_list, body_list])
+    # label_list = nlp_util.split_label(label_list)
+    # label_list = nlp_util.stem_corpus(label_list)
 
-    hit_count_title = search_rank.get_key_sea_count_corpus(ess_keys, title_list, unique=True)
+    # hit_count_title = search_rank.get_key_sea_count_corpus(ess_keys, title_list, unique=True)
     hit_count_body = search_rank.get_key_sea_count_corpus(ess_keys, body_list, unique=True)
     hit_count_hot = search_rank.get_key_sea_count_corpus(hot_k, body_list, unique=False)
-    hit_count_label = search_rank.get_key_sea_count_corpus(c_label, label_list, unique=False)
+    # hit_count_label = search_rank.get_key_sea_count_corpus(c_label, label_list, unique=False)
 
     return {
-        "hit_count_title": hit_count_title,
+        # "hit_count_title": hit_count_title,
         "hit_count_body": hit_count_body,
         "hit_count_hot": hit_count_hot,
-        "hit_count_label": hit_count_label,
+        # "hit_count_label": hit_count_label,
         "body_len": body_len,
         "stat": {
-            "max-reply": max(reply_list),
+            # "max-reply": max(reply_list),
             "max-body_len": max(body_len),
         },
     }
@@ -231,16 +231,20 @@ def query_issue(scan_output, max_depth=4):
     # TODO 查询的 key 哪里出来的？
     logger = logging.getLogger("StreamLogger")
     rdb = issuedb.ISSuedb()
-    sql = """select issue_num, comments, state, title, body, commit_id, labels from {}
-                    order by length(body) desc"""
+    # sql = """select review_id,content,bold,star_num,helpful_num,reply_content from {}
+    #                 order by length(content) desc"""
+    sql = """select review_id,content,star_num from {}
+                       order by length(content) desc"""
     overall_table = {}
     # 所有相关app和item
     for i in range(min(len(scan_output), max_depth)):
         one_dict = {}
         app = scan_output[i][0]
-        one_dict['sim'] = scan_output[i][1]
-
-        tab_name = table2tsv.file2table(app)
+        one_dict['sim'] = scan_output[i][1] #similarity_score
+        # print(app)
+        tab_name = table2tsv.file2table(app)  # suppose running
+        print("@@@@@@@@@@@@")
+        print(tab_name)
         one_dict['data'] = []
         one_dict['keys'] = []
 
@@ -248,19 +252,22 @@ def query_issue(scan_output, max_depth=4):
         keys_sea = _filter_search_keys(score_list, threshold=0.7)
         logger.debug(f"{app}\t{tab_name}\tsimilar keys length: {len(keys_sea)}")
 
-        output = rdb.db_retrieve(sql.format(tab_name))
-        head = ["issue_num", "comments", "state", "title", "body", "commit_id", "labels"]
+        output = rdb.db_retrieve(sql.format(tab_name)) #output is list of tuple
+
+        # head = ["review_id", "content", "bold", "star_num", "helpful_num", "reply_content"]
+        head = ["review_id", "content",  "star_num"]
         f_output = issuedb.retrieve_formatter(head, output)
 
-        title_list = util.get_col(output, head.index('title'))
-        body_list = util.get_col(output, head.index('body'))
-        label_list = util.get_col(output, head.index('labels'))
-        reply_list = util.get_col(output, head.index('issue_num'))
-        pre_calc_val = _pre_calc(title_list=title_list,
-                                 body_list=body_list,
-                                 label_list=label_list,
-                                 reply_list=reply_list,
-                                 keys_sea=keys_sea)
+
+        #title_list = util.get_col(output, head.index('title'))
+        body_list = util.get_col(output, head.index('content'))
+
+        star_list = util.get_col(output, head.index('star_num'))
+        # reply_list = util.get_col(output, head.index('reply_content'))
+        # bold_list = util.get_col(output, head.index('bold'))
+        # label_list = util.get_col(output, head.index('labels'))
+        # reply_list = util.get_col(output, head.index('issue_num'))
+        pre_calc_val = _pre_calc(body_list=body_list, keys_sea=keys_sea) # suppose running
 
         for k in keys_sea:
             keys = []
@@ -268,7 +275,6 @@ def query_issue(scan_output, max_depth=4):
                 keys.append(" ".join(i))
             keys = " ".join(keys)
             ess_keys = nlp_util.stem_sentence(keys)
-
             tmp = search_rank.sort_candidate_seq(f_output, ess_keys, pre_calc_val)
             leng = min(3, len(tmp))
             one_dict['keys'].extend([ess_keys] * leng)
@@ -377,9 +383,12 @@ def valid_key(key):
 
 
 if __name__ == '__main__':
-    pass
-    # test = util.read_csv("model/data/description/owncloud_android_master.csv")
-    # scan_output = descript(test, except_files="owncloud_android", pool_size=12)
-    # overall_table = query_issue(scan_output, max_depth=3)
+    a = nlp_util.stem_sentence("I feel so good today. What about you?")
+    test = util.read_csv("model/data/description/com.duckduckgo.mobile.android.csv")
+    scan_output = descript(test, except_files="com.duckduckgo.mobile.android", pool_size=12)
+
+    overall_table = query_issue(scan_output, max_depth=3)
+    # print("！！！！！！！！！！！！！！！！！！！！！！！")
+    # print(overall_table)
     # overall_sort = sort_result_table(overall_table)
     # out = get_out(overall_sort, overall_table)
