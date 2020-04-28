@@ -127,7 +127,7 @@ def rank_review(app_score_list: list, max_depth=4) -> list:
 
 
 if __name__ == '__main__':
-    print(time.strftime("%Y-%m-%d-%H:%M:%S", time.localtime(time.time())))
+    s = time.strftime("%Y-%m-%d-%H:%M:%S", time.localtime(time.time()))
     test = util.read_csv("model/data/description/com.duckduckgo.mobile.android.csv")
     print("begin search similar apps")
     scan_output = descript(test, except_files="com.duckduckgo.mobile.android", pool_size=32)  # get similar app
@@ -146,4 +146,5 @@ if __name__ == '__main__':
     # 5. 关闭文件
     z.close()
     print("end.")
+    print(s)
     print(time.strftime("%Y-%m-%d-%H:%M:%S", time.localtime(time.time())))
