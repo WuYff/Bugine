@@ -159,7 +159,7 @@ if __name__ == "__main__":
         for line in tsvreader:
             own_list.append(line)
 
-    next_list, own_list = map(nlp_util.process_tsv, [next_list, own_list])
+    next_list, own_list = map(nlp_util.process_xsv, [next_list, own_list])
     list_score = weight_compare_list(
         own_list, next_list, ngram_compare, [0.5, 0.5, 1])
     print("len:", len(list_score))

@@ -383,11 +383,11 @@ def valid_key(key):
 
 
 if __name__ == '__main__':
-    a = nlp_util.stem_sentence("I feel so good today. What about you?")
+    # a = nlp_util.stem_sentence("I feel so good today. What about you?")
     test = util.read_csv("model/data/description/com.duckduckgo.mobile.android.csv")
     scan_output = descript(test, except_files="com.duckduckgo.mobile.android", pool_size=12)
-
-    overall_table = query_issue(scan_output, max_depth=3)
+    # print(util.get_col(scan_output,[0,1]))
+    # overall_table = query_issue(scan_output, max_depth=3)
     # print("！！！！！！！！！！！！！！！！！！！！！！！")
     # print(overall_table)
     # overall_sort = sort_result_table(overall_table)
