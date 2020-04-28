@@ -111,37 +111,37 @@ def calc_candidate_seq(corpus, ess_keys, pre_calc_vlaue):
     score = []
     for i in range(len(corpus)):
         r = corpus[i]
+        # print(r.content)
+        # status = True if r.state == "closed" else False
 
-        status = True if r.state == "closed" else False
-
-        reply_num = r.comments  # FFFFFFFFFFFFFFFFFFFF
+        # reply_num = r.comments  # FFFFFFFFFFFFFFFFFFFF
         body_len = pre_calc_vlaue["body_len"][i]  # FFFFFFFFFFFFFFFFFFFF
-
-        hit_count_title = pre_calc_vlaue["hit_count_title"][i]
+        # print(body_len)
+        # hit_count_title = pre_calc_vlaue["hit_count_title"][i]
         hit_count_body = pre_calc_vlaue["hit_count_body"][i]
         hit_count_hot = pre_calc_vlaue["hit_count_hot"][i]
-        hit_count_label = pre_calc_vlaue["hit_count_label"][i]
-        commit_id = len("" if r.commit_id is None else r.commit_id.split("#"))
-        commit_id = 0 if commit_id == 0 else 1
+        # hit_count_label = pre_calc_vlaue["hit_count_label"][i]
+        # commit_id = len("" if r.commit_id is None else r.commit_id.split("#"))
+        # commit_id = 0 if commit_id == 0 else 1
 
-        t_over, t_all_hit, t_hit_key = calc_overlap(hit_count_title, ess_keys)
+        # t_over, t_all_hit, t_hit_key = calc_overlap(hit_count_title, ess_keys)
         b_over, b_all_hit, b_hit_key = calc_overlap(hit_count_body, ess_keys)
 
         the_score_detail = copy.deepcopy(SCORE_COEF)
         the_score_detail['hit_hot_words']['val'] = calc_exist(hit_count_hot, scale_max=MAX_VAL)
         the_score_detail['hit_hot_words']['explain'] = hit_key_list(hit_count_hot)
-        the_score_detail['hit_label']['val'] = calc_exist(hit_count_label, scale_max=MAX_VAL)
-        the_score_detail['hit_label']['explain'] = hit_key_list(hit_count_label)
-        the_score_detail['hit_title_overlap']['val'] = t_over
-        the_score_detail['hit_title_overlap']['explain'] = t_hit_key
-        the_score_detail['hit_title_all']['val'] = t_all_hit
+        # the_score_detail['hit_label']['val'] = calc_exist(hit_count_label, scale_max=MAX_VAL)
+        # the_score_detail['hit_label']['explain'] = hit_key_list(hit_count_label)
+        # the_score_detail['hit_title_overlap']['val'] = t_over
+        # the_score_detail['hit_title_overlap']['explain'] = t_hit_key
+        # the_score_detail['hit_title_all']['val'] = t_all_hit
         the_score_detail['hit_body_num']['val'] = b_over
         the_score_detail['hit_body_num']['explain'] = b_hit_key
         the_score_detail['hit_body_all']['val'] = b_all_hit
-        the_score_detail['closed']['val'] = status
-        the_score_detail['reply_num']['val'] = min_max_scale(0, pre_calc_vlaue["stat"]["max-reply"],
-                                                             reply_num)  # FFFFFFFFFFFFFFFFFFFF
-        the_score_detail['commit_id']['val'] = commit_id
+        # the_score_detail['closed']['val'] = status
+        # the_score_detail['reply_num']['val'] = min_max_scale(0, pre_calc_vlaue["stat"]["max-reply"],
+        #                                                      reply_num)  # FFFFFFFFFFFFFFFFFFFF
+        # the_score_detail['commit_id']['val'] = commit_id
         the_score_detail['body_len']['val'] = min_max_scale(0, pre_calc_vlaue["stat"]["max-body_len"],
                                                             body_len)  # FFFFFFFFFFFFFFFFFFFF
 

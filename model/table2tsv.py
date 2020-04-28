@@ -59,5 +59,7 @@ def file2table(file_name):
 
 if __name__ == '__main__':
     # generate_lookup_table()
-    print(table2file("duckduckgo$Android"))
-    print(file2table("farmerbb_Notepad_master.tsv"))
+    file_name ="/Users/yiwu/Documents/inno2/the_one/Bugine/model/data/description/com.github.shadowsocks.csv"
+    file2table(file_name)
+    # print(table2file("duckduckgo$Android"))
+    # print(file2table("farmerbb_Notepad_master.tsv"))
