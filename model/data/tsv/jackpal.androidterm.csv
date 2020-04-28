@@ -1,0 +1,15 @@
+XML_file_name,View_name,Resource_name
+main,item,menu_new_window
+main,item,menu_close_window
+main,item,menu_window_list
+main,item,menu_toggle_soft_keyboard
+main,item,menu_special_keys
+main,item,menu_preferences
+main,item,menu_reset
+main,item,menu_send_email
+main,item,menu_toggle_wakelock
+main,item,menu_toggle_wifilock
+main,item,action_help
+window_list_item,TextView,window_list_label
+window_list_item,View,window_list_separator
+window_list_item,view,window_list_close

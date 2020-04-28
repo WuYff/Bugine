@@ -11,3 +11,4 @@ log/
 
 tmp.txt
 test.py
+.DS_Store
