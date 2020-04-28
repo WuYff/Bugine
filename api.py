@@ -92,7 +92,7 @@ def except_list_build_helper():
 
 
 @print_run_time
-def descript(query_decp, except_files=None, pool_size=12):
+def descript(query_decp, except_files=None, pool_size=32):
     """
     生成描述文件
     ~1分钟得出结果

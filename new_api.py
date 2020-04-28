@@ -9,8 +9,8 @@ from model import issuedb
 import logging
 import csv
 from model import table2tsv
-import datetime
 import time
+import os
 
 csv_path = "rank_result/"
 stopWords = set(stopwords.words('english'))
@@ -83,15 +83,14 @@ def keywords_in_content(hot_keywords: dict, content_words: list, weight=False) -
 
 
 def rank_review(app_score_list: list, max_depth=4) -> list:
-    # 对于筛选出来的相似app
-    # sql = """select review_id,content,bold,star_num,helpful_num,reply_content from {}
-    #                 order by length(content) desc"""
     hot_keywords = get_keywords()
-    logger = logging.getLogger("StreamLogger")
     rdb = issuedb.ISSuedb()  # 'review2.db
     all_review = []
-    for i in range(min(len(app_score_list), max_depth)):
-        app = app = app_score_list[i][0]
+    # number = [5000, 10000, 15000, 20000]
+    number = [1000, 2000, 3000, 4000]
+    for m in range(min(len(app_score_list), max_depth)):
+        app = app_score_list[m][0]
+        app_name = os.path.basename(app)[:-4]
         score = {
             'star_num': 0,
             'hot_key_words': 0,
@@ -101,7 +100,7 @@ def rank_review(app_score_list: list, max_depth=4) -> list:
         }
         sql = """select review_id,content,star_num,helpful_num from {} order by length(content) desc"""
         tab_name = table2tsv.file2table(app)  # csv -> 数据库名字
-        output = rdb.db_retrieve(sql.format(tab_name))
+        output = rdb.db_retrieve(sql.format(tab_name))  # sql查询结果
         # head = ["review_id", "content", "bold", "star_num", "helpful_num", "reply_content"]
         head = ["review_id", "content", "star_num", "helpful_num"]
         f_output = issuedb.retrieve_formatter(head, output)
@@ -113,22 +112,25 @@ def rank_review(app_score_list: list, max_depth=4) -> list:
             score['star_num'] = star_score[i.star_num]
             print(i.content)
             print(len(i.content))
-            score['hot_key_words'] = keywords_in_content(hot_keywords, nlp_process(i.content), True) * 0.3
+            score['hot_key_words'] = keywords_in_content(hot_keywords, nlp_process(i.content), True) * 0.3  # 关键词计分
             score['helpful_num'] = int(
                 i.helpful_num) * 0.25  # bug TypeError: can't multiply sequence by non-int of type 'float'
             for k in score:
                 score_sum += score[k]
             if score_sum > 3:  # 3 2 1
-                all_review.append([score_sum, i])
+                all_review.append([app_name, score_sum, i])
+            if len(all_review) > number[m]:
+                break
     # 然后对all_review进行排序
-    result = sorted(all_review, key=itemgetter(0), reverse=True)
+    result = sorted(all_review, key=itemgetter(1), reverse=True)
     return result[:400]
 
 
 if __name__ == '__main__':
+    print(time.strftime("%Y-%m-%d-%H:%M:%S", time.localtime(time.time())))
     test = util.read_csv("model/data/description/com.duckduckgo.mobile.android.csv")
     print("begin search similar apps")
-    scan_output = descript(test, except_files="com.duckduckgo.mobile.android", pool_size=12)  # get similar app
+    scan_output = descript(test, except_files="com.duckduckgo.mobile.android", pool_size=32)  # get similar app
     print("begin rank reviews")
     rank_result = rank_review(scan_output)
     now = time.strftime("%Y-%m-%d-%H_%M_%S", time.localtime(time.time()))
@@ -137,9 +139,11 @@ if __name__ == '__main__':
     # # 2. 基于文件对象构建 csv写入对象
     csv_writer = csv.writer(z)
     # # 3. 构建列表头
-    csv_writer.writerow(["score", "star_num", "help_num", "review_content"])
+    csv_writer.writerow(["app_id", "score", "star_num", "helpful_num", "review_content"])
     for i in rank_result:
         # # 写入文件
-        csv_writer.writerow([i[0], i[1].star_num, i[1].helpful_num, i[1].content])
+        csv_writer.writerow([i[0], i[1], i[2].star_num, i[2].helpful_num, i[2].content])
     # 5. 关闭文件
     z.close()
+    print("end.")
+    print(time.strftime("%Y-%m-%d-%H:%M:%S", time.localtime(time.time())))
