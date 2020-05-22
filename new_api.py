@@ -11,6 +11,7 @@ import csv
 from model import table2tsv
 import time
 import os
+import sqlite3
 
 csv_path = "rank_result/"
 stopWords = set(stopwords.words('english'))
@@ -131,8 +132,6 @@ def rank_review(app_score_list: list, max_depth=4) -> list:
         # f_output[0].review_id
         for i in f_output:
             if len(i.content) < 50:
-                print(i.content)
-                print( len(i.content) )
                 break
             processed_content = nlp_process(i.content)  # 没有移除数字
             score_sum = 0
@@ -156,9 +155,11 @@ if __name__ == '__main__':
     s = time.strftime("%Y-%m-%d-%H:%M:%S", time.localtime(time.time()))
     test = util.read_csv("model/data/description/com.duckduckgo.mobile.android.csv")
     print("begin search similar apps")
-    scan_output = descript(test, except_files="com.duckduckgo.mobile.android", pool_size=32)  # get similar app
+    scan_output = descript(test, source_category="Tools",
+                           except_files="com.duckduckgo.mobile.android", pool_size=2)  # get similar app
     print("begin rank reviews")
     rank_result = rank_review(scan_output)
+    # print(util.get_col(scan_output, [0, 1]))
     now = time.strftime("%Y-%m-%d-%H_%M_%S", time.localtime(time.time()))
     # 1. 创建文件对象
     z = open(csv_path + now + ".csv", 'w', encoding='utf-8', newline='')
@@ -174,6 +175,3 @@ if __name__ == '__main__':
     print("end.")
     print(s)
     print(time.strftime("%Y-%m-%d-%H:%M:%S", time.localtime(time.time())))
-
-
-
