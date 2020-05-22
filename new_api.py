@@ -3,7 +3,7 @@ from nltk.corpus import stopwords
 from nltk.stem.snowball import SnowballStemmer
 from nltk.tokenize import RegexpTokenizer
 from operator import itemgetter
-from api import descript, query_issue
+from api import descript, query_issue, _filter_search_keys
 from model import zip_handler, xml_parser, work_path, match_name, util, nlp_util, search_rank
 from model import issuedb
 import logging
@@ -65,8 +65,8 @@ def get_keywords() -> dict:
 def keywords_in_content(hot_keywords: dict, content_words: list, weight=False) -> int:
     # get key words key = score
     count_dict = {}
-    for k in hot_keywords:
-        if k in content_words:
+    for k in content_words:
+        if k in hot_keywords:
             if k not in count_dict:
                 if weight:
                     count_dict[k] = hot_keywords[k]  # 要不要给keywords加上分数呢？
@@ -82,6 +82,20 @@ def keywords_in_content(hot_keywords: dict, content_words: list, weight=False) -
     return score
 
 
+def ui_key_word(ui_keywords: set, content_words: list) -> int:
+    count_dict = {}
+    for k in ui_keywords:
+        if k in content_words:
+            if k not in count_dict:
+                count_dict[k] = 1
+            else:
+                count_dict[k] += 1
+    score = 0
+    for k in count_dict:
+        score += count_dict[k]
+    return score
+
+
 def rank_review(app_score_list: list, max_depth=4) -> list:
     hot_keywords = get_keywords()
     rdb = issuedb.ISSuedb()  # 'review2.db
@@ -89,6 +103,16 @@ def rank_review(app_score_list: list, max_depth=4) -> list:
     # number = [5000, 10000, 15000, 20000]
     number = [1000, 2000, 3000, 4000]
     for m in range(min(len(app_score_list), max_depth)):
+        score_list = app_score_list[m][2]
+
+        keys_sea = _filter_search_keys(score_list, threshold=0.7)
+        ess_keys = set()
+        for r in keys_sea:
+            for a_list in r:
+                ess_keys = ess_keys.union(a_list)
+        ess_keys = " ".join(list(ess_keys))
+        ess_keys = nlp_util.stem_sentence(ess_keys)
+        ess_keys = set(ess_keys)
         app = app_score_list[m][0]
         app_name = os.path.basename(app)[:-4]
         score = {
@@ -107,12 +131,14 @@ def rank_review(app_score_list: list, max_depth=4) -> list:
         # f_output[0].review_id
         for i in f_output:
             if len(i.content) < 50:
+                print(i.content)
+                print( len(i.content) )
                 break
+            processed_content = nlp_process(i.content)  # 没有移除数字
             score_sum = 0
             score['star_num'] = star_score[i.star_num]
-            print(i.content)
-            print(len(i.content))
-            score['hot_key_words'] = keywords_in_content(hot_keywords, nlp_process(i.content), True) * 0.3  # 关键词计分
+            score['hot_key_words'] = keywords_in_content(hot_keywords, processed_content, True) * 0.3  # 关键词计分
+            score['ui_key_words'] = ui_key_word(ess_keys, processed_content)
             score['helpful_num'] = int(
                 i.helpful_num) * 0.25  # bug TypeError: can't multiply sequence by non-int of type 'float'
             for k in score:
@@ -148,3 +174,6 @@ if __name__ == '__main__':
     print("end.")
     print(s)
     print(time.strftime("%Y-%m-%d-%H:%M:%S", time.localtime(time.time())))
+
+
+
