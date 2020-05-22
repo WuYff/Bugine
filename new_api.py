@@ -12,6 +12,8 @@ from model import table2tsv
 import time
 import os
 import sqlite3
+import re
+from nltk import ngrams
 
 csv_path = "rank_result/"
 stopWords = set(stopwords.words('english'))
@@ -28,7 +30,8 @@ def nlp_process(content: str) -> list:
     for w in result:
         w = w.lower()
         if w not in stopWords:
-            words_filtered.append(w)
+            if re.fullmatch("([A-Za-z0-9-'])\\w+", w) is not None:
+                words_filtered.append(w)
 
     result = []
     for w in words_filtered:
@@ -36,13 +39,21 @@ def nlp_process(content: str) -> list:
     return result
 
 
-def get_keywords() -> dict:
+def get_keywords() -> (dict, dict):
     hot_keywords = {}
+    two_keywords = {}
     # get key words key = score
     with open('./model/conf/new_keywords.csv', 'r') as f:
         reader = csv.reader(f)
         for row in reader:
-            hot_keywords[row[0]] = int(row[1])
+            hot_keywords[row[0]] = float(row[1])
+    f.close()
+    with open('./model/conf/key_2_gram.csv', 'r') as f:
+        reader = csv.reader(f)
+        for row in reader:
+            if float(row[1]) < 0.35:
+                break
+            two_keywords[row[0]] = float(row[1])
     # with open(work_path.in_project("./model/conf/hotkey.dat"), 'r', encoding='utf8') as f:
     #     for row in f.readlines():
     #         tmp = row.strip()
@@ -60,7 +71,7 @@ def get_keywords() -> dict:
     # for h in hot_keywords:
     #     csv_writer.writerow(h)
     # z.close()
-    return hot_keywords
+    return hot_keywords, two_keywords
 
 
 def keywords_in_content(hot_keywords: dict, content_words: list, weight=False) -> int:
@@ -88,9 +99,9 @@ def ui_key_word(ui_keywords: set, content_words: list) -> int:
     for k in ui_keywords:
         if k in content_words:
             if k not in count_dict:
-                count_dict[k] = 1
+                count_dict[k] = 4
             else:
-                count_dict[k] += 1
+                count_dict[k] += 4
     score = 0
     for k in count_dict:
         score += count_dict[k]
@@ -98,7 +109,7 @@ def ui_key_word(ui_keywords: set, content_words: list) -> int:
 
 
 def rank_review(app_score_list: list, max_depth=4) -> list:
-    hot_keywords = get_keywords()
+    hot_keywords, two_keywords = get_keywords()
     rdb = issuedb.ISSuedb()  # 'review2.db
     all_review = []
     # number = [5000, 10000, 15000, 20000]
@@ -121,7 +132,8 @@ def rank_review(app_score_list: list, max_depth=4) -> list:
             'hot_key_words': 0,
             'helpful_num': 0,
             'ui_key': 0,
-            'similar_app': 0  # app相似度
+            'similar_app': 0,  # app相似度
+            'two_gram_keywords': 0,
         }
         sql = """select review_id,content,star_num,helpful_num from {} order by length(content) desc"""
         tab_name = table2tsv.file2table(app)  # csv -> 数据库名字
@@ -131,15 +143,15 @@ def rank_review(app_score_list: list, max_depth=4) -> list:
         f_output = issuedb.retrieve_formatter(head, output)
         # f_output[0].review_id
         for i in f_output:
-            if len(i.content) < 50:
+            if len(i.content) < 100:
                 break
             processed_content = nlp_process(i.content)  # 没有移除数字
             score_sum = 0
             score['star_num'] = star_score[i.star_num]
-            score['hot_key_words'] = keywords_in_content(hot_keywords, processed_content, True) * 0.3  # 关键词计分
+            score['hot_key_words'] = keywords_in_content(hot_keywords, processed_content, False) * 0.3  # 关键词计分
             score['ui_key_words'] = ui_key_word(ess_keys, processed_content)
-            score['helpful_num'] = int(
-                i.helpful_num) * 0.25  # bug TypeError: can't multiply sequence by non-int of type 'float'
+            # score['two_gram_keywords'] = two_gram_key_word(two_keywords, processed_content)
+            score['helpful_num'] = int(i.helpful_num) * 0.25  # bug TypeError: can't multiply sequence by non-int of type 'float'
             for k in score:
                 score_sum += score[k]
             if score_sum > 3:  # 3 2 1
@@ -150,6 +162,21 @@ def rank_review(app_score_list: list, max_depth=4) -> list:
     result = sorted(all_review, key=itemgetter(1), reverse=True)
     return result[:400]
 
+def two_gram_key_word(two_keywords: dict, content_words: list, weight=False):
+    ngrams2_li = [' '.join(w) for w in ngrams( content_words, 2)]
+    count_dict = {}
+    for k in ngrams2_li:
+        if k in two_keywords:
+            if k not in count_dict:
+                count_dict[k] = 3
+            else:
+                count_dict[k] += 3
+    score = 0
+    for k in count_dict:
+        score += count_dict[k]
+    return score
+
+
 
 if __name__ == '__main__':
     s = time.strftime("%Y-%m-%d-%H:%M:%S", time.localtime(time.time()))
@@ -159,7 +186,7 @@ if __name__ == '__main__':
                            except_files="com.duckduckgo.mobile.android", pool_size=2)  # get similar app
     print("begin rank reviews")
     rank_result = rank_review(scan_output)
-    # print(util.get_col(scan_output, [0, 1]))
+    print(util.get_col(scan_output, [0, 1]))
     now = time.strftime("%Y-%m-%d-%H_%M_%S", time.localtime(time.time()))
     # 1. 创建文件对象
     z = open(csv_path + now + ".csv", 'w', encoding='utf-8', newline='')
