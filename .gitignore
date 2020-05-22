@@ -1,6 +1,8 @@
 tmp/
 uploads/
 downloads/
+**/model/data/*
+
 
 .idea/
 __pycache__/
@@ -12,3 +14,4 @@ log/
 tmp.txt
 test.py
 .DS_Store
+

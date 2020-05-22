@@ -9,6 +9,7 @@ from multiprocessing import Pool
 import uuid
 import redis
 import ast
+import sqlite3
 
 pp = util.PrintWarp()
 r = redis.StrictRedis(host='127.0.0.1', port=6379, db=1, decode_responses=True)
@@ -22,7 +23,8 @@ r = redis.StrictRedis(host='127.0.0.1', port=6379, db=1, decode_responses=True)
 # 5. get_out 格式化输出， example line: key, recommend_url
 
 def _single_scan_helper(arg):
-    index, file_path, sample_ui_list, comp_func, weight_list, threshold = arg
+    index, file_path, sample_ui_list, comp_func, weight_list, threshold, source_category = arg
+    target_category = get_file_category(file_path)[0]
     logger = logging.getLogger("StreamLogger")
     logger.debug(file_path)
     tmp_out = util.read_csv(file_path)
@@ -36,13 +38,14 @@ def _single_scan_helper(arg):
                                                                  weight_list)
     # score_distribution_list = util.get_col(score_distribution_list, 2)
     score = match_name.similar_index(score_distribution_list, threshold, col_index=2, rate=True)
-
+    if target_category == source_category:
+        score = score * 1.5
     rt = (file_path, score, score_distribution_list)
     logger.debug(f"ADD {index} {file_path}")
     return rt
 
 
-def _scan_match(sample_ui_list, path_list, comp_func, weight_list=None, threshold=0.6, pool_size=12):
+def _scan_match(source_category, sample_ui_list, path_list, comp_func, weight_list=None, threshold=0.6, pool_size=12):
     """
     :param sample_ui_list: output after process_csv()
     :param path_list: relative or absolute path list of csv files
@@ -56,7 +59,7 @@ def _scan_match(sample_ui_list, path_list, comp_func, weight_list=None, threshol
 
     arg_list = []
     for j in range(len(path_list)):
-        arg_list.append((j + 1, path_list[j], sample_ui_list, comp_func, weight_list, threshold))
+        arg_list.append((j + 1, path_list[j], sample_ui_list, comp_func, weight_list, threshold, source_category))
     score_list = pool.map(_single_scan_helper, arg_list)
     pool.close()
     pool.join()
@@ -92,7 +95,7 @@ def except_list_build_helper():
 
 
 @print_run_time
-def descript(query_decp, except_files=None, pool_size=32):
+def descript(query_decp, source_category, except_files=None, pool_size=32):
     """
     生成描述文件
     ~1分钟得出结果
@@ -133,7 +136,8 @@ def descript(query_decp, except_files=None, pool_size=32):
     file_list = tmp
     logger.debug(pp.pformat(file_list))
 
-    scan_output = _scan_match(query_decp, file_list, match_name.ngram_compare, [1, 0.5, 0.5], threshold=0.7,
+    scan_output = _scan_match(source_category, query_decp, file_list, match_name.ngram_compare, [1, 0.5, 0.5],
+                              threshold=0.7,
                               pool_size=pool_size)
     # 得到src app与 数据库每个app的总相似度，按照相似度降序排列。
     # tuple(
@@ -143,6 +147,14 @@ def descript(query_decp, except_files=None, pool_size=32):
     # )
     logger.debug(pp.pformat(util.get_col(scan_output, [0, 1])))
     return scan_output
+
+
+def get_file_category(file_path: str) -> str:
+    conn = sqlite3.connect('review2.db')
+    c = conn.cursor()
+    app_id = os.path.basename(file_path)[:-4]
+    c.execute("SELECT category FROM apps WHERE name= ?", [app_id, ])
+    return c.fetchone()
 
 
 def _restore_mask(name):
@@ -240,7 +252,7 @@ def query_issue(scan_output, max_depth=4):
     for i in range(min(len(scan_output), max_depth)):
         one_dict = {}
         app = scan_output[i][0]
-        one_dict['sim'] = scan_output[i][1] #similarity_score
+        one_dict['sim'] = scan_output[i][1]  # similarity_score
         # print(app)
         tab_name = table2tsv.file2table(app)  # suppose running
         print("@@@@@@@@@@@@")
@@ -252,14 +264,13 @@ def query_issue(scan_output, max_depth=4):
         keys_sea = _filter_search_keys(score_list, threshold=0.7)
         logger.debug(f"{app}\t{tab_name}\tsimilar keys length: {len(keys_sea)}")
 
-        output = rdb.db_retrieve(sql.format(tab_name)) #output is list of tuple
+        output = rdb.db_retrieve(sql.format(tab_name))  # output is list of tuple
 
         # head = ["review_id", "content", "bold", "star_num", "helpful_num", "reply_content"]
-        head = ["review_id", "content",  "star_num"]
+        head = ["review_id", "content", "star_num"]
         f_output = issuedb.retrieve_formatter(head, output)
 
-
-        #title_list = util.get_col(output, head.index('title'))
+        # title_list = util.get_col(output, head.index('title'))
         body_list = util.get_col(output, head.index('content'))
 
         star_list = util.get_col(output, head.index('star_num'))
@@ -267,7 +278,7 @@ def query_issue(scan_output, max_depth=4):
         # bold_list = util.get_col(output, head.index('bold'))
         # label_list = util.get_col(output, head.index('labels'))
         # reply_list = util.get_col(output, head.index('issue_num'))
-        pre_calc_val = _pre_calc(body_list=body_list, keys_sea=keys_sea) # suppose running
+        pre_calc_val = _pre_calc(body_list=body_list, keys_sea=keys_sea)  # suppose running
 
         for k in keys_sea:
             keys = []
