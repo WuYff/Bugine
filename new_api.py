@@ -99,9 +99,9 @@ def ui_key_word(ui_keywords: set, content_words: list) -> int:
     for k in ui_keywords:
         if k in content_words:
             if k not in count_dict:
-                count_dict[k] = 6
+                count_dict[k] = 10
             else:
-                count_dict[k] += 6
+                count_dict[k] += 10
     score = 0
     for k in count_dict:
         score += count_dict[k]
