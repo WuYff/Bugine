@@ -99,9 +99,9 @@ def ui_key_word(ui_keywords: set, content_words: list) -> int:
     for k in ui_keywords:
         if k in content_words:
             if k not in count_dict:
-                count_dict[k] = 4
+                count_dict[k] = 6
             else:
-                count_dict[k] += 4
+                count_dict[k] += 6
     score = 0
     for k in count_dict:
         score += count_dict[k]
@@ -116,6 +116,7 @@ def rank_review(app_score_list: list, max_depth=4) -> list:
     number = [1000, 2000, 3000, 4000]
     for m in range(min(len(app_score_list), max_depth)):
         score_list = app_score_list[m][2]
+        app_weight = app_score_list[m][1]
 
         keys_sea = _filter_search_keys(score_list, threshold=0.7)
         ess_keys = set()
@@ -148,8 +149,8 @@ def rank_review(app_score_list: list, max_depth=4) -> list:
             processed_content = nlp_process(i.content)  # 没有移除数字
             score_sum = 0
             score['star_num'] = star_score[i.star_num]
-            score['hot_key_words'] = keywords_in_content(hot_keywords, processed_content, False) * 0.3  # 关键词计分
-            score['ui_key_words'] = ui_key_word(ess_keys, processed_content)
+            score['hot_key_words'] = keywords_in_content(hot_keywords, processed_content, False) * app_weight  # 关键词计分
+            score['ui_key_words'] = ui_key_word(ess_keys, processed_content) * app_weight
             # score['two_gram_keywords'] = two_gram_key_word(two_keywords, processed_content)
             score['helpful_num'] = int(i.helpful_num) * 0.25  # bug TypeError: can't multiply sequence by non-int of type 'float'
             for k in score:
