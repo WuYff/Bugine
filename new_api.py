@@ -180,12 +180,12 @@ def two_gram_key_word(two_keywords: dict, content_words: list, weight=False):
 
 
 if __name__ == '__main__':
-    eee = "Tusky"
+    eee = "com.keylesspalace.tusky"
     s = time.strftime("%Y-%m-%d-%H:%M:%S", time.localtime(time.time()))
-    test = util.read_csv("model/data/test/Tusky.csv")
+    test = util.read_csv("model/data/description_extend_all/com.keylesspalace.tusky.csv")
     print("begin search similar apps")
     scan_output = descript(test, source_category="Social",
-                           except_files="Tusky", pool_size=32)  # get similar app
+                           except_files="com.keylesspalace.tusky",extend=True, pool_size=32)  # get similar app
     print("begin rank reviews")
     rank_result = rank_review(scan_output)
     print(util.get_col(scan_output, [0, 1]))

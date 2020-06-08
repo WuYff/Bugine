@@ -95,7 +95,7 @@ def except_list_build_helper():
 
 
 @print_run_time
-def descript(query_decp, source_category, except_files=None, pool_size=32):
+def descript(query_decp, source_category, except_files=None,extend=False, pool_size=32):
     """
     生成描述文件
     ~1分钟得出结果
@@ -106,7 +106,10 @@ def descript(query_decp, source_category, except_files=None, pool_size=32):
     :return: a tuple. 得到src app与 数据库每个app的总相似度，按照相似度降序排列. 用作 搜索 app
     """
     query_decp = nlp_util.process_xsv(query_decp)
-    src_dir = work_path.in_project('./model/data/description')
+    if extend :
+        src_dir = work_path.in_project('./model/data/description_extend_all')
+    else:
+        src_dir = work_path.in_project('./model/data/description')
     logger = logging.getLogger("StreamLogger")
     file_list = os.listdir(src_dir)
     file_list = [os.path.join(src_dir, f) for f in file_list]
@@ -150,7 +153,7 @@ def descript(query_decp, source_category, except_files=None, pool_size=32):
 
 
 def get_file_category(file_path: str) -> str:
-    conn = sqlite3.connect('review2.db')
+    conn = sqlite3.connect('review_extend.db')
     c = conn.cursor()
     app_id = os.path.basename(file_path)[:-4]
     c.execute("SELECT category FROM apps WHERE name= ?", [app_id, ])
