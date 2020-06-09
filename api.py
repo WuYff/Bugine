@@ -110,6 +110,7 @@ def descript(query_decp, source_category, except_files=None,extend=False, pool_s
         src_dir = work_path.in_project('./model/data/description_extend_all')
     else:
         src_dir = work_path.in_project('./model/data/description')
+    print("PATH!!!! {}".format(src_dir))
     logger = logging.getLogger("StreamLogger")
     file_list = os.listdir(src_dir)
     file_list = [os.path.join(src_dir, f) for f in file_list]

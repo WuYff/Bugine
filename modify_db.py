@@ -7,7 +7,7 @@ with open('app_list.csv', newline='') as f:
     for r in row:
         app_dict[r[5]] = r[3]
 
-conn = sqlite3.connect('review2.db')
+conn = sqlite3.connect('review_extend.db')
 c = conn.cursor()
 
 # 读取csv，
