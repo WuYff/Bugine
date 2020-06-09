@@ -110,10 +110,10 @@ def ui_key_word(ui_keywords: set, content_words: list) -> int:
 
 def rank_review(app_score_list: list, max_depth=4) -> list:
     hot_keywords, two_keywords = get_keywords()
-    rdb = issuedb.ISSuedb()  # 'review2.db
+    rdb = issuedb.ISSuedb()  
     all_review = []
     # number = [5000, 10000, 15000, 20000]
-    number = [1000, 2000, 3000, 4000]
+    # number = [1000, 2000, 3000, 4000]
     for m in range(min(len(app_score_list), max_depth)):
         score_list = app_score_list[m][2]
         app_weight = app_score_list[m][1]
@@ -153,12 +153,14 @@ def rank_review(app_score_list: list, max_depth=4) -> list:
             score['ui_key_words'] = ui_key_word(ess_keys, processed_content) * app_weight
             # score['two_gram_keywords'] = two_gram_key_word(two_keywords, processed_content)
             score['helpful_num'] = int(i.helpful_num) * 0.25  # bug TypeError: can't multiply sequence by non-int of type 'float'
+            if score['helpful_num'] > 25:
+                score['helpful_num'] = 25
             for k in score:
                 score_sum += score[k]
             if score_sum > 3:  # 3 2 1
                 all_review.append([app_name, score_sum, i])
-            if len(all_review) > number[m]:
-                break
+            # if len(all_review) > number[m]:
+            #     break
     # 然后对all_review进行排序
     result = sorted(all_review, key=itemgetter(1), reverse=True)
     return result[:400]
@@ -180,12 +182,12 @@ def two_gram_key_word(two_keywords: dict, content_words: list, weight=False):
 
 
 if __name__ == '__main__':
-    eee = "com.keylesspalace.tusky"
+    eee = "it.feio.android.omninotes"
     s = time.strftime("%Y-%m-%d-%H:%M:%S", time.localtime(time.time()))
-    test = util.read_csv("model/data/description_extend_all/com.keylesspalace.tusky.csv")
+    test = util.read_csv("model/data/description_extend_all/"+eee+".csv")
     print("begin search similar apps")
-    scan_output = descript(test, source_category="Social",
-                           except_files="com.keylesspalace.tusky",extend=True, pool_size=32)  # get similar app
+    scan_output = descript(test, source_category="Productivity",
+                           except_files=eee,extend=True, pool_size=32)  # get similar app
     print("begin rank reviews")
     rank_result = rank_review(scan_output)
     print(util.get_col(scan_output, [0, 1]))
