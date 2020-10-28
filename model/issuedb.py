@@ -70,7 +70,7 @@ def drop_table(cursor, tb_name):
 
 
 class ISSuedb:
-    def __init__(self, filepath=work_path.in_project('review_extend.db')):
+    def __init__(self, filepath=work_path.in_project('review2.db')):
         logger = logging.getLogger("StreamLogger")
         logger.info("DB file location: %s" % filepath)
         self.conn = sqlite3.connect(filepath)

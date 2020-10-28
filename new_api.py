@@ -119,6 +119,8 @@ def rank_review(app_score_list: list, max_depth=4) -> list:
         app_weight = app_score_list[m][1]
 
         keys_sea = _filter_search_keys(score_list, threshold=0.7)
+        print("$$$$$$$$$$$$$$$$$")
+        print(keys_sea)
         ess_keys = set()
         for r in keys_sea:
             for a_list in r:
@@ -126,6 +128,8 @@ def rank_review(app_score_list: list, max_depth=4) -> list:
         ess_keys = " ".join(list(ess_keys))
         ess_keys = nlp_util.stem_sentence(ess_keys)
         ess_keys = set(ess_keys)
+        print("@@@@@@@@@@@")
+        print(ess_keys)
         app = app_score_list[m][0]
         app_name = os.path.basename(app)[:-4]
         score = {
@@ -138,6 +142,7 @@ def rank_review(app_score_list: list, max_depth=4) -> list:
         }
         sql = """select review_id,content,star_num,helpful_num from {} order by length(content) desc"""
         tab_name = table2tsv.file2table(app)  # csv -> 数据库名字
+        print(tab_name)
         output = rdb.db_retrieve(sql.format(tab_name))  # sql查询结果
         # head = ["review_id", "content", "bold", "star_num", "helpful_num", "reply_content"]
         head = ["review_id", "content", "star_num", "helpful_num"]
@@ -154,7 +159,7 @@ def rank_review(app_score_list: list, max_depth=4) -> list:
             # score['two_gram_keywords'] = two_gram_key_word(two_keywords, processed_content)
             score['helpful_num'] = int(i.helpful_num) * 0.25  # bug TypeError: can't multiply sequence by non-int of type 'float'
             if score['helpful_num'] > 25:
-                score['helpful_num'] = 25
+                  score['helpful_num'] = 25
             for k in score:
                 score_sum += score[k]
             if score_sum > 3:  # 3 2 1
@@ -182,15 +187,15 @@ def two_gram_key_word(two_keywords: dict, content_words: list, weight=False):
 
 
 if __name__ == '__main__':
-    eee = "it.feio.android.omninotes"
+    eee = "com.duckduckgo.mobile.android"
     s = time.strftime("%Y-%m-%d-%H:%M:%S", time.localtime(time.time()))
-    test = util.read_csv("model/data/description_extend_all/"+eee+".csv")
+    test = util.read_csv("model/data/description/"+eee+".csv")
     print("begin search similar apps")
-    scan_output = descript(test, source_category="Productivity",
-                           except_files=eee,extend=True, pool_size=32)  # get similar app
+    scan_output = descript(test, source_category="Finance",
+                           except_files=eee,extend=False, pool_size=32)  # get similar app
+    print(util.get_col(scan_output, [0, 1]))
     print("begin rank reviews")
     rank_result = rank_review(scan_output)
-    print(util.get_col(scan_output, [0, 1]))
     now = time.strftime("%Y-%m-%d-%H_%M_%S", time.localtime(time.time()))
     # 1. 创建文件对象
     z = open(csv_path +eee+ now + ".csv", 'w', encoding='utf-8', newline='')

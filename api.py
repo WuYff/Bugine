@@ -154,7 +154,7 @@ def descript(query_decp, source_category, except_files=None,extend=False, pool_s
 
 
 def get_file_category(file_path: str) -> str:
-    conn = sqlite3.connect('review_extend.db')
+    conn = sqlite3.connect('review2.db')
     c = conn.cursor()
     app_id = os.path.basename(file_path)[:-4]
     c.execute("SELECT category FROM apps WHERE name= ?", [app_id, ])
