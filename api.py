@@ -60,6 +60,7 @@ def _scan_match(source_category, sample_ui_list, path_list, comp_func, weight_li
     arg_list = []
     for j in range(len(path_list)):
         arg_list.append((j + 1, path_list[j], sample_ui_list, comp_func, weight_list, threshold, source_category))
+   
     score_list = pool.map(_single_scan_helper, arg_list)
     pool.close()
     pool.join()
@@ -154,10 +155,10 @@ def descript(query_decp, source_category, except_files=None,extend=False, pool_s
 
 
 def get_file_category(file_path: str) -> str:
-    conn = sqlite3.connect('review2.db')
+    conn = sqlite3.connect('bungle.db')
     c = conn.cursor()
     app_id = os.path.basename(file_path)[:-4]
-    c.execute("SELECT category FROM apps WHERE name= ?", [app_id, ])
+    c.execute("SELECT category FROM apps WHERE id= ?", [app_id, ])
     return c.fetchone()
 
 
@@ -259,8 +260,8 @@ def query_issue(scan_output, max_depth=4):
         one_dict['sim'] = scan_output[i][1]  # similarity_score
         # print(app)
         tab_name = table2tsv.file2table(app)  # suppose running
-        print("@@@@@@@@@@@@")
-        print(tab_name)
+        # print("@@@@@@@@@@@@")
+        # print(tab_name)
         one_dict['data'] = []
         one_dict['keys'] = []
 

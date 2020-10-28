@@ -128,8 +128,8 @@ def rank_review(app_score_list: list, max_depth=4) -> list:
         ess_keys = " ".join(list(ess_keys))
         ess_keys = nlp_util.stem_sentence(ess_keys)
         ess_keys = set(ess_keys)
-        print("@@@@@@@@@@@")
-        print(ess_keys)
+        # print("@@@@@@@@@@@")
+        # print(ess_keys)
         app = app_score_list[m][0]
         app_name = os.path.basename(app)[:-4]
         score = {
@@ -140,10 +140,11 @@ def rank_review(app_score_list: list, max_depth=4) -> list:
             'similar_app': 0,  # app相似度
             'two_gram_keywords': 0,
         }
-        sql = """select review_id,content,star_num,helpful_num from {} order by length(content) desc"""
-        tab_name = table2tsv.file2table(app)  # csv -> 数据库名字
-        print(tab_name)
-        output = rdb.db_retrieve(sql.format(tab_name))  # sql查询结果
+        #sql = """select review_id,content,star_num,helpful_num from {} order by length(content) desc"""
+        sql = """select id, content,star_num,helpful_num from reviews where app_id=\'{}\' order by length(content) desc"""
+        # tab_name = table2tsv.file2table(app)  # csv -> 数据库名字
+        # print("@app_name{}".format(app_name))
+        output = rdb.db_retrieve(sql.format(app_name))  # sql查询结果
         # head = ["review_id", "content", "bold", "star_num", "helpful_num", "reply_content"]
         head = ["review_id", "content", "star_num", "helpful_num"]
         f_output = issuedb.retrieve_formatter(head, output)
@@ -153,7 +154,7 @@ def rank_review(app_score_list: list, max_depth=4) -> list:
                 break
             processed_content = nlp_process(i.content)  # 没有移除数字
             score_sum = 0
-            score['star_num'] = star_score[i.star_num]
+            score['star_num'] = star_score[str(i.star_num)]
             score['hot_key_words'] = keywords_in_content(hot_keywords, processed_content, False) * app_weight  # 关键词计分
             score['ui_key_words'] = ui_key_word(ess_keys, processed_content) * app_weight
             # score['two_gram_keywords'] = two_gram_key_word(two_keywords, processed_content)
