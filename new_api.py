@@ -119,8 +119,8 @@ def rank_review(app_score_list: list, max_depth=4) -> list:
         app_weight = app_score_list[m][1]
 
         keys_sea = _filter_search_keys(score_list, threshold=0.7)
-        print("$$$$$$$$$$$$$$$$$")
-        print(keys_sea)
+        # print("$$$$$$$$$$$$$$$$$")
+        # print(keys_sea)
         ess_keys = set()
         for r in keys_sea:
             for a_list in r:
@@ -203,10 +203,12 @@ if __name__ == '__main__':
     # # 2. 基于文件对象构建 csv写入对象
     csv_writer = csv.writer(z)
     # # 3. 构建列表头
-    csv_writer.writerow(["app_id", "score", "star_num", "helpful_num", "review_content"])
+    review_id = 0
+    csv_writer.writerow(["review_id","app_id", "score", "star_num", "helpful_num", "review_content"])
     for i in rank_result:
+        review_id = review_id +1
         # # 写入文件
-        csv_writer.writerow([i[0], i[1], i[2].star_num, i[2].helpful_num, i[2].content])
+        csv_writer.writerow([review_id,i[0], i[1], i[2].star_num, i[2].helpful_num, i[2].content])
     # 5. 关闭文件
     z.close()
     print("end.")
