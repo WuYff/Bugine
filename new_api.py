@@ -188,18 +188,18 @@ def two_gram_key_word(two_keywords: dict, content_words: list, weight=False):
 
 
 if __name__ == '__main__':
-    eee = "com.duckduckgo.mobile.android"
+    app_under_test = "Omni-Notes"
     s = time.strftime("%Y-%m-%d-%H:%M:%S", time.localtime(time.time()))
-    test = util.read_csv("model/data/description/"+eee+".csv")
+    test = util.read_csv("model/data/description/"+app_under_test+".csv")
     print("begin search similar apps")
-    scan_output = descript(test, source_category="Finance",
-                           except_files=eee,extend=False, pool_size=32)  # get similar app
+    scan_output = descript(test, source_category="Productivity",
+                           except_files=app_under_test,extend=False, pool_size=32)  # get similar app
     print(util.get_col(scan_output, [0, 1]))
     print("begin rank reviews")
     rank_result = rank_review(scan_output)
     now = time.strftime("%Y-%m-%d-%H_%M_%S", time.localtime(time.time()))
     # 1. 创建文件对象
-    z = open(csv_path +eee+ now + ".csv", 'w', encoding='utf-8', newline='')
+    z = open(csv_path +app_under_test+ now + ".csv", 'w', encoding='utf-8', newline='')
     # # 2. 基于文件对象构建 csv写入对象
     csv_writer = csv.writer(z)
     # # 3. 构建列表头

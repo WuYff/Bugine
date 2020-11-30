@@ -24,7 +24,9 @@ r = redis.StrictRedis(host='127.0.0.1', port=6379, db=1, decode_responses=True)
 
 def _single_scan_helper(arg):
     index, file_path, sample_ui_list, comp_func, weight_list, threshold, source_category = arg
+    print("Get!!!!!!!{}".format(file_path))
     target_category = get_file_category(file_path)[0]
+    print("target_category>>>>>>>>>{}".format(target_category))
     logger = logging.getLogger("StreamLogger")
     logger.debug(file_path)
     tmp_out = util.read_csv(file_path)
@@ -111,7 +113,7 @@ def descript(query_decp, source_category, except_files=None,extend=False, pool_s
         src_dir = work_path.in_project('./model/data/description_extend_all')
     else:
         src_dir = work_path.in_project('./model/data/description')
-    print("PATH!!!! {}".format(src_dir))
+    
     logger = logging.getLogger("StreamLogger")
     file_list = os.listdir(src_dir)
     file_list = [os.path.join(src_dir, f) for f in file_list]
@@ -140,7 +142,7 @@ def descript(query_decp, source_category, except_files=None,extend=False, pool_s
         logger.debug(pp.pformat(rms))
     file_list = tmp
     logger.debug(pp.pformat(file_list))
-
+    print("here!!!! {}".format(src_dir))
     scan_output = _scan_match(source_category, query_decp, file_list, match_name.ngram_compare, [1, 0.5, 0.5],
                               threshold=0.7,
                               pool_size=pool_size)
