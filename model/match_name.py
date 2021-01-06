@@ -28,8 +28,8 @@ def similar_index(score_list, threshold, col_index, rate=True):
 def weight_compare_list(source_wl, target_wl, comp_func, weight_list=None):
     """
     wl is words list like -- [[["drawer", "header"], ["ImageView"], ["drawer", "current", "account"]],...].
-    :param source_wl: 3 dim list as source
-    :param target_wl: 3 dim list as target
+    :param source_wl: 3 dim list as source (app under test)
+    :param target_wl: 3 dim list as target  (app in data base)
     :param comp_func: can be ngram_compare, jaccard_compare, dice_compare
     :param weight_list: weight each col in 2rd list
     :return: each row in source_wl (best effort) search matching target row in target_wl. [(_w1, _w2, _score),...]
@@ -38,13 +38,15 @@ def weight_compare_list(source_wl, target_wl, comp_func, weight_list=None):
         raise Exception("No weight")
     weight = np.array(weight_list)
     out = []
-    for w1 in source_wl:
+    for w1 in source_wl:  # w1 = [["drawer", "header"], ["ImageView"], ["drawer", "current", "account"]]
         score_max = -1
         for w2 in target_wl:
 
             # compare each word by the sequence
-            _score_list = []
+            _score_list = [] #(len == 3)
             zipped = zip(w1, w2)
+            # print("@zipped")
+            # print(zipped)
             for z_w1_w2 in zipped:
                 _score_list.append(comp_func(*z_w1_w2))
 

@@ -14,6 +14,10 @@ import os
 import sqlite3
 import re
 from nltk import ngrams
+import json
+
+
+ui_keywords_json_path = "ui_keywords/"
 
 csv_path = "rank_result/"
 stopWords = set(stopwords.words('english'))
@@ -94,7 +98,7 @@ def keywords_in_content(hot_keywords: dict, content_words: list, weight=False) -
     return score
 
 
-def ui_key_word(ui_keywords: set, content_words: list) -> int:
+def ui_key_word(ui_keywords: set, content_words: list) -> tuple:
     count_dict = {}
     for k in ui_keywords:
         if k in content_words:
@@ -105,29 +109,45 @@ def ui_key_word(ui_keywords: set, content_words: list) -> int:
     score = 0
     for k in count_dict:
         score += count_dict[k]
-    return score
+    return (score,list(count_dict.keys()))
 
+def keys_turn_set(_keys_sea):
+        ess_keys = set()
+        for r in _keys_sea:
+            for a_list in r:
+                ess_keys = ess_keys.union(a_list)
+        ess_keys = " ".join(list(ess_keys))
+        ess_keys = nlp_util.stem_sentence(ess_keys)
+        return set(ess_keys)
 
 def rank_review(app_score_list: list, max_depth=4) -> list:
+
+    #  app_score_list is a list of (file_path, score, score_distribution_list)
+    #   score_distribution_list = [] # should be a list of tuple [(_w1, _w2,  ngram_score)]  _w1 is for the app under test
     hot_keywords, two_keywords = get_keywords()
     rdb = issuedb.ISSuedb()  
     all_review = []
     # number = [5000, 10000, 15000, 20000]
     # number = [1000, 2000, 3000, 4000]
+    target_app_keys={}
+    target_app_all_keys={}
     for m in range(min(len(app_score_list), max_depth)):
         score_list = app_score_list[m][2]
         app_weight = app_score_list[m][1]
 
-        keys_sea = _filter_search_keys(score_list, threshold=0.7)
+        keys_sea,keys_sea_app_under_test = _filter_search_keys(score_list, threshold=0.7)
         # print("$$$$$$$$$$$$$$$$$")
         # print(keys_sea)
-        ess_keys = set()
-        for r in keys_sea:
-            for a_list in r:
-                ess_keys = ess_keys.union(a_list)
-        ess_keys = " ".join(list(ess_keys))
-        ess_keys = nlp_util.stem_sentence(ess_keys)
-        ess_keys = set(ess_keys)
+        # ess_keys = set()
+        # for r in keys_sea:
+        #     for a_list in r:
+        #         ess_keys = ess_keys.union(a_list)
+        # ess_keys = " ".join(list(ess_keys))
+        # ess_keys = nlp_util.stem_sentence(ess_keys)
+        # ess_keys = set(ess_keys)
+
+        ess_keys =  keys_turn_set(keys_sea)
+        ess_keys_app_under_test =  keys_turn_set(keys_sea)
         # print("@@@@@@@@@@@")
         # print(ess_keys)
         app = app_score_list[m][0]
@@ -156,11 +176,15 @@ def rank_review(app_score_list: list, max_depth=4) -> list:
             score_sum = 0
             score['star_num'] = star_score[str(i.star_num)]
             score['hot_key_words'] = keywords_in_content(hot_keywords, processed_content, False) * app_weight  # 关键词计分
-            score['ui_key_words'] = ui_key_word(ess_keys, processed_content) * app_weight
+            score['ui_key_words'] , matched_keywords_in_other_app_dict = ui_key_word(ess_keys, processed_content) 
+            score['ui_key_words']=score['ui_key_words'] * app_weight
+            target_app_keys[app_name]=matched_keywords_in_other_app_dict 
+            target_app_all_keys[app_name]= list(ess_keys)
             # score['two_gram_keywords'] = two_gram_key_word(two_keywords, processed_content)
-            score['helpful_num'] = int(i.helpful_num) * 0.25  # bug TypeError: can't multiply sequence by non-int of type 'float'
-            if score['helpful_num'] > 25:
-                  score['helpful_num'] = 25
+            # score['helpful_num'] = int(i.helpful_num) * 0.25  # bug TypeError: can't multiply sequence by non-int of type 'float'
+            # print(score['ui_key_words'])
+            # if score['helpful_num'] > 25:
+            #       score['helpful_num'] = 25
             for k in score:
                 score_sum += score[k]
             if score_sum > 3:  # 3 2 1
@@ -169,7 +193,7 @@ def rank_review(app_score_list: list, max_depth=4) -> list:
             #     break
     # 然后对all_review进行排序
     result = sorted(all_review, key=itemgetter(1), reverse=True)
-    return result[:400]
+    return (result[:400], target_app_keys,target_app_all_keys)
 
 def two_gram_key_word(two_keywords: dict, content_words: list, weight=False):
     ngrams2_li = [' '.join(w) for w in ngrams( content_words, 2)]
@@ -185,18 +209,17 @@ def two_gram_key_word(two_keywords: dict, content_words: list, weight=False):
         score += count_dict[k]
     return score
 
-
-
 if __name__ == '__main__':
-    app_under_test = "Omni-Notes"
+    app_under_test = "TimberX"
     s = time.strftime("%Y-%m-%d-%H:%M:%S", time.localtime(time.time()))
     test = util.read_csv("model/data/description/"+app_under_test+".csv")
     print("begin search similar apps")
-    scan_output = descript(test, source_category="Productivity",
+    scan_output = descript(test, source_category="Music_and_Audio",
                            except_files=app_under_test,extend=False, pool_size=32)  # get similar app
-    print(util.get_col(scan_output, [0, 1]))
+    #  scan_output is a list of (file_path, score, score_distribution_list)
+    # print(util.get_col(scan_output, [0, 1]))
     print("begin rank reviews")
-    rank_result = rank_review(scan_output)
+    rank_result,target_app_keys,target_app_all_keys = rank_review(scan_output)
     now = time.strftime("%Y-%m-%d-%H_%M_%S", time.localtime(time.time()))
     # 1. 创建文件对象
     z = open(csv_path +app_under_test+ now + ".csv", 'w', encoding='utf-8', newline='')
@@ -211,6 +234,12 @@ if __name__ == '__main__':
         csv_writer.writerow([review_id,i[0], i[1], i[2].star_num, i[2].helpful_num, i[2].content])
     # 5. 关闭文件
     z.close()
+
+    with open(ui_keywords_json_path+app_under_test+'_UI_keywords_target_apps.json', 'w') as fp:
+        json.dump(target_app_keys, fp)
+    with open(ui_keywords_json_path+app_under_test+'_UI_keywords_target_apps_all.json', 'w') as fp:
+        json.dump(target_app_all_keys, fp)
+
     print("end.")
     print(s)
     print(time.strftime("%Y-%m-%d-%H:%M:%S", time.localtime(time.time())))

@@ -22,7 +22,7 @@ r = redis.StrictRedis(host='127.0.0.1', port=6379, db=1, decode_responses=True)
 # 4. sort_result_table 对结果进行排序
 # 5. get_out 格式化输出， example line: key, recommend_url
 
-def _single_scan_helper(arg):
+def _single_scan_helper(arg)->tuple:
     index, file_path, sample_ui_list, comp_func, weight_list, threshold, source_category = arg
     target_category = get_file_category(file_path)[0]
     logger = logging.getLogger("StreamLogger")
@@ -32,7 +32,7 @@ def _single_scan_helper(arg):
 
     if len(tmp_out) == 0:
         logger.debug(f"EMPTY {file_path}")
-        score_distribution_list = []
+        score_distribution_list = [] # should be a list of tuple [(_w1, _w2,  ngram_score)]  _w1 is app under test
     else:
         score_distribution_list = match_name.weight_compare_list(sample_ui_list, tmp_out, comp_func,
                                                                  weight_list)
@@ -40,10 +40,11 @@ def _single_scan_helper(arg):
     score = match_name.similar_index(score_distribution_list, threshold, col_index=2, rate=True)
     if target_category == source_category:
         score = score * 1.5
-    rt = (file_path, score, score_distribution_list)
+    rt = (file_path, score, score_distribution_list) # score 是一个float， 两个app相似度的评分 
     logger.debug(f"ADD {index} {file_path}")
     return rt
 
+#scan_output = _scan_match(source_category, query_decp, file_list, match_name.ngram_compare, [1, 0.5, 0.5],threshold=0.7,pool_size=pool_size)
 
 def _scan_match(source_category, sample_ui_list, path_list, comp_func, weight_list=None, threshold=0.6, pool_size=12):
     """
@@ -61,7 +62,7 @@ def _scan_match(source_category, sample_ui_list, path_list, comp_func, weight_li
     for j in range(len(path_list)):
         arg_list.append((j + 1, path_list[j], sample_ui_list, comp_func, weight_list, threshold, source_category))
    
-    score_list = pool.map(_single_scan_helper, arg_list)
+    score_list = pool.map(_single_scan_helper, arg_list) #list of (file_path, score, score_distribution_list)
     pool.close()
     pool.join()
 
@@ -140,7 +141,6 @@ def descript(query_decp, source_category, except_files=None,extend=False, pool_s
         logger.debug(pp.pformat(rms))
     file_list = tmp
     logger.debug(pp.pformat(file_list))
-    print("here!!!! {}".format(src_dir))
     scan_output = _scan_match(source_category, query_decp, file_list, match_name.ngram_compare, [1, 0.5, 0.5],
                               threshold=0.7,
                               pool_size=pool_size)
@@ -151,7 +151,7 @@ def descript(query_decp, source_category, except_files=None,extend=False, pool_s
     # list "参考APP的组件相似度" [(请求app组件, 参考app组件，组件相似度)]
     # )
     logger.debug(pp.pformat(util.get_col(scan_output, [0, 1])))
-    return scan_output
+    return scan_output # list of (file_path, score, score_distribution_list)
 
 
 def get_file_category(file_path: str) -> str:
@@ -178,17 +178,20 @@ def _filter_search_keys(weight_list, threshold=0.6, unique=True):
     :return: 3 dim list of target ui components
     """
     keys = []
+    keys_app_under_test = []
     for res in weight_list:
         src, target, score = res
         if score < threshold:
             continue
         src, target = map(_restore_mask, [src, target])
-        keys.append(target)
+        keys.append(target) # target 中的 
+        keys_app_under_test.append(src)
     if unique:
         unique_keys = util.StringHash(keys)
-        return unique_keys.get_in_list()
+        unique_keys_app_under_test = util.StringHash( keys_app_under_test)
+        return (unique_keys.get_in_list(), unique_keys_app_under_test.get_in_list())
     else:
-        return keys
+        return (keys,keys_app_under_test)
 
 
 def _pre_calc(**kwargs):
