@@ -1,0 +1,99 @@
+begin search similar apps
+@Debug /home/yiwu/Bugine/model/data/description/org.geometerplus.zlibrary.ui.android.csv
+@Debug /home/yiwu/Bugine/model/data/description/org.geometerplus.zlibrary.ui.android.csv + target_category Tools
+@Debug /home/yiwu/Bugine/model/data/description/com.prey.csv
+@Debug /home/yiwu/Bugine/model/data/description/com.prey.csv + target_category Tools
+@Debug /home/yiwu/Bugine/model/data/description/com.ichi2.anki.csv
+@Debug /home/yiwu/Bugine/model/data/description/com.ichi2.anki.csv + target_category Education
+@Debug /home/yiwu/Bugine/model/data/description/com.duckduckgo.mobile.android.csv
+@Debug /home/yiwu/Bugine/model/data/description/com.duckduckgo.mobile.android.csv + target_category Tools
+@Debug /home/yiwu/Bugine/model/data/description/de.ph1b.audiobook.csv
+@Debug /home/yiwu/Bugine/model/data/description/de.ph1b.audiobook.csv + target_category Multi_Media
+@Debug /home/yiwu/Bugine/model/data/description/com.catchingnow.tinyclipboardmanager.csv
+@Debug /home/yiwu/Bugine/model/data/description/com.catchingnow.tinyclipboardmanager.csv + target_category Tools
+@Debug /home/yiwu/Bugine/model/data/description/com.github.shadowsocks.csv
+@Debug /home/yiwu/Bugine/model/data/description/com.github.shadowsocks.csv + target_category Social_Network
+@Debug /home/yiwu/Bugine/model/data/description/com.tweetlanes.android.csv
+@Debug /home/yiwu/Bugine/model/data/description/com.tweetlanes.android.csv + target_category Social_Network
+@Debug /home/yiwu/Bugine/model/data/description/com.google.samples.apps.iosched.csv
+@Debug /home/yiwu/Bugine/model/data/description/com.google.samples.apps.iosched.csv + target_category Social_Network
+@Debug /home/yiwu/Bugine/model/data/description/com.renard.ocr.csv
+@Debug /home/yiwu/Bugine/model/data/description/com.renard.ocr.csv + target_category Productivity
+@Debug /home/yiwu/Bugine/model/data/description/fm.last.android.csv
+@Debug /home/yiwu/Bugine/model/data/description/fm.last.android.csv + target_category Multi_Media
+@Debug /home/yiwu/Bugine/model/data/description/com.moez.QKSMS.csv
+@Debug /home/yiwu/Bugine/model/data/description/com.moez.QKSMS.csv + target_category Communication
+@Debug /home/yiwu/Bugine/model/data/description/com.simplemobiletools.calendar.csv
+@Debug /home/yiwu/Bugine/model/data/description/com.simplemobiletools.calendar.csv + target_category Tools
+@Debug /home/yiwu/Bugine/model/data/description/com.google.zxing.client.android.csv
+@Debug /home/yiwu/Bugine/model/data/description/com.google.zxing.client.android.csv + target_category Tools
+@Debug /home/yiwu/Bugine/model/data/description/com.owncloud.android.csv
+@Debug /home/yiwu/Bugine/model/data/description/com.owncloud.android.csv + target_category Tools
+@Debug /home/yiwu/Bugine/model/data/description/com.klinker.android.twitter_l.csv
+@Debug /home/yiwu/Bugine/model/data/description/com.klinker.android.twitter_l.csv + target_category Social_Network
+@Debug /home/yiwu/Bugine/model/data/description/com.google.android.keep.csv
+@Debug /home/yiwu/Bugine/model/data/description/com.google.android.keep.csv + target_category Productivity
+@Debug /home/yiwu/Bugine/model/data/description/org.kde.kdeconnect_tp.csv
+@Debug /home/yiwu/Bugine/model/data/description/org.kde.kdeconnect_tp.csv + target_category Tools
+@Debug /home/yiwu/Bugine/model/data/description/org.gnucash.android.csv
+@Debug /home/yiwu/Bugine/model/data/description/org.gnucash.android.csv + target_category Finance
+@Debug /home/yiwu/Bugine/model/data/description/cgeo.geocaching.csv
+@Debug /home/yiwu/Bugine/model/data/description/cgeo.geocaching.csv + target_category Travel_and_local
+@Debug /home/yiwu/Bugine/model/data/description/com.asksven.betterbatterystats.csv
+@Debug /home/yiwu/Bugine/model/data/description/com.asksven.betterbatterystats.csv + target_category Tools
+@Debug /home/yiwu/Bugine/model/data/description/org.videolan.vlc.csv
+@Debug /home/yiwu/Bugine/model/data/description/org.videolan.vlc.csv + target_category Multi_Media
+@Debug /home/yiwu/Bugine/model/data/description/org.connectbot.csv
+@Debug /home/yiwu/Bugine/model/data/description/org.connectbot.csv + target_category Tools
+@Debug /home/yiwu/Bugine/model/data/description/com.mapswithme.maps.pro.csv
+@Debug /home/yiwu/Bugine/model/data/description/com.mapswithme.maps.pro.csv + target_category Travel_and_local
+@Debug /home/yiwu/Bugine/model/data/description/dev.ukanth.ufirewall.csv
+@Debug /home/yiwu/Bugine/model/data/description/dev.ukanth.ufirewall.csv + target_category Tools
+@Debug /home/yiwu/Bugine/model/data/description/com.habitrpg.android.habitica.csv
+@Debug /home/yiwu/Bugine/model/data/description/com.habitrpg.android.habitica.csv + target_category Productivity
+@Debug /home/yiwu/Bugine/model/data/description/com.fsck.k9.csv
+@Debug /home/yiwu/Bugine/model/data/description/com.fsck.k9.csv + target_category Communication
+@Debug /home/yiwu/Bugine/model/data/description/de.danoeh.antennapod.csv
+@Debug /home/yiwu/Bugine/model/data/description/de.danoeh.antennapod.csv + target_category Multi_Media
+@Debug /home/yiwu/Bugine/model/data/description/org.stepic.droid.csv
+@Debug /home/yiwu/Bugine/model/data/description/org.stepic.droid.csv + target_category Education
+@Debug /home/yiwu/Bugine/model/data/description/org.mariotaku.twidere.csv
+@Debug /home/yiwu/Bugine/model/data/description/org.mariotaku.twidere.csv + target_category Social_Network
+@Debug /home/yiwu/Bugine/model/data/description/com.achep.acdisplay.csv
+@Debug /home/yiwu/Bugine/model/data/description/com.achep.acdisplay.csv + target_category Tools
+@Debug /home/yiwu/Bugine/model/data/description/net.kreosoft.android.mynotes.csv
+@Debug /home/yiwu/Bugine/model/data/description/net.kreosoft.android.mynotes.csv + target_category Productivity
+@Debug /home/yiwu/Bugine/model/data/description/nickrout.lenslauncher.csv
+@Debug /home/yiwu/Bugine/model/data/description/nickrout.lenslauncher.csv + target_category Personalization
+@Debug /home/yiwu/Bugine/model/data/description/org.wikipedia.csv
+@Debug /home/yiwu/Bugine/model/data/description/org.wikipedia.csv + target_category News_and_Magazines
+@Debug /home/yiwu/Bugine/model/data/description/jackpal.androidterm.csv
+@Debug /home/yiwu/Bugine/model/data/description/jackpal.androidterm.csv + target_category Tools
+@Debug /home/yiwu/Bugine/model/data/description/com.simplemobiletools.gallery.csv
+@Debug /home/yiwu/Bugine/model/data/description/com.simplemobiletools.gallery.csv + target_category Multi_Media
+@Debug /home/yiwu/Bugine/model/data/description/com.battlelancer.seriesguide.csv
+@Debug /home/yiwu/Bugine/model/data/description/com.battlelancer.seriesguide.csv + target_category Multi_Media
+@Debug /home/yiwu/Bugine/model/data/description/com.socialnmobile.dictapps.notepad.color.note.csv
+@Debug /home/yiwu/Bugine/model/data/description/com.socialnmobile.dictapps.notepad.color.note.csv + target_category Productivity
+@Debug /home/yiwu/Bugine/model/data/description/com.wire.csv
+@Debug /home/yiwu/Bugine/model/data/description/com.wire.csv + target_category Communication
+@Debug /home/yiwu/Bugine/model/data/description/com.microsoft.todos.csv
+@Debug /home/yiwu/Bugine/model/data/description/com.microsoft.todos.csv + target_category Productivity
+@Debug /home/yiwu/Bugine/model/data/description/org.telegram.messenger.csv
+@Debug /home/yiwu/Bugine/model/data/description/org.telegram.messenger.csv + target_category Communication
+@Debug /home/yiwu/Bugine/model/data/description/net.nurik.roman.muzei.csv
+@Debug /home/yiwu/Bugine/model/data/description/net.nurik.roman.muzei.csv + target_category Personalization
+@Debug /home/yiwu/Bugine/model/data/description/com.atomczak.notepat.csv
+@Debug /home/yiwu/Bugine/model/data/description/com.atomczak.notepat.csv + target_category Productivity
+@Debug /home/yiwu/Bugine/model/data/description/org.thoughtcrime.securesms.csv
+@Debug /home/yiwu/Bugine/model/data/description/org.thoughtcrime.securesms.csv + target_category Communication
+@Debug /home/yiwu/Bugine/model/data/description/org.wordpress.android.csv
+@Debug /home/yiwu/Bugine/model/data/description/org.wordpress.android.csv + target_category Social_Network
+@Debug /home/yiwu/Bugine/model/data/description/com.microsoft.office.onenote.csv
+@Debug /home/yiwu/Bugine/model/data/description/com.microsoft.office.onenote.csv + target_category Productivity
+@Debug /home/yiwu/Bugine/model/data/description/com.evernote.csv
+@Debug /home/yiwu/Bugine/model/data/description/com.evernote.csv + target_category Productivity
+begin rank reviews
+end.
+2021-01-07-07:11:47
+2021-01-07-07:12:52

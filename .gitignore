@@ -15,3 +15,4 @@ tmp.txt
 test.py
 .DS_Store
 bungle.db
+bungle_backup.db

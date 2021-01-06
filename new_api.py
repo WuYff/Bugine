@@ -210,7 +210,7 @@ def two_gram_key_word(two_keywords: dict, content_words: list, weight=False):
     return score
 
 if __name__ == '__main__':
-    app_under_test = "TimberX"
+    app_under_test = "Omni-Notes"
     s = time.strftime("%Y-%m-%d-%H:%M:%S", time.localtime(time.time()))
     test = util.read_csv("model/data/description/"+app_under_test+".csv")
     print("begin search similar apps")

@@ -108,11 +108,15 @@ def split_dot(w):
 
 def process_xsv(xsv_output):
     output = copy.deepcopy(xsv_output)
+    # print(len(output))
     for i in range(len(output)):
+        # if len(output[i])<3:
+        #     print("@Here")
+        #     print(output[i])
         output[i][0] = combine_process(output[i][0])
         output[i][1] = split_dot(output[i][1])
         output[i][2] = combine_process(output[i][2])
-
+        
     return output
 
 
@@ -147,3 +151,4 @@ if __name__ == "__main__":
     print(stem_sentence("I'm working on jobs"))
     print(word_count("I'm working on jobs"))
     print(decamelize("AfvsdfgbBsdfafv"))
+    

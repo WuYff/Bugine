@@ -24,11 +24,15 @@ r = redis.StrictRedis(host='127.0.0.1', port=6379, db=1, decode_responses=True)
 
 def _single_scan_helper(arg)->tuple:
     index, file_path, sample_ui_list, comp_func, weight_list, threshold, source_category = arg
+    print("@Debug {}".format(file_path))
     target_category = get_file_category(file_path)[0]
+    print("@Debug {} + target_category {}".format(file_path,target_category ))
     logger = logging.getLogger("StreamLogger")
     logger.debug(file_path)
     tmp_out = util.read_csv(file_path)
+    
     tmp_out = nlp_util.process_xsv(tmp_out)
+    
 
     if len(tmp_out) == 0:
         logger.debug(f"EMPTY {file_path}")
@@ -403,11 +407,14 @@ def valid_key(key):
 
 if __name__ == '__main__':
     # a = nlp_util.stem_sentence("I feel so good today. What about you?")
-    test = util.read_csv("model/data/description/com.duckduckgo.mobile.android.csv")
-    scan_output = descript(test, except_files="com.duckduckgo.mobile.android", pool_size=12)
-    # print(util.get_col(scan_output,[0,1]))
-    overall_table = query_issue(scan_output, max_depth=3)
+    # test = util.read_csv("model/data/description/com.duckduckgo.mobile.android.csv")
+    # scan_output = descript(test, except_files="com.duckduckgo.mobile.android", pool_size=12)
+    # # print(util.get_col(scan_output,[0,1]))
+    # overall_table = query_issue(scan_output, max_depth=3)
     # print("！！！！！！！！！！！！！！！！！！！！！！！")
     # print(overall_table)
     # overall_sort = sort_result_table(overall_table)
     # out = get_out(overall_sort, overall_table)
+    file_path = "/home/yiwu/Bugine/model/data/description/com.evernote.csv"
+    tmp_out = util.read_csv(file_path)
+    tmp_out = nlp_util.process_xsv(tmp_out)
