@@ -105,11 +105,11 @@ def ui_key_word(ui_keywords: set, content_words: list) -> tuple:
             if k not in count_dict:
                 count_dict[k] = 10
             else:
-                count_dict[k] += 10
+                count_dict[k] = count_dict[k] + 10
     score = 0
     for k in count_dict:
         score += count_dict[k]
-    return (score,list(count_dict.keys()))
+    return (score,count_dict)
 
 def keys_turn_set(_keys_sea):
         ess_keys = set()
@@ -130,6 +130,7 @@ def rank_review(app_score_list: list, max_depth=4) -> list:
     # number = [5000, 10000, 15000, 20000]
     # number = [1000, 2000, 3000, 4000]
     target_app_keys={}
+    ui_keywords_review={}
     target_app_all_keys={}
     for m in range(min(len(app_score_list), max_depth)):
         score_list = app_score_list[m][2]
@@ -169,17 +170,23 @@ def rank_review(app_score_list: list, max_depth=4) -> list:
         head = ["review_id", "content", "star_num", "helpful_num"]
         f_output = issuedb.retrieve_formatter(head, output)
         # f_output[0].review_id
+        target_app_keys[app_name] = []
         for i in f_output:
             if len(i.content) < 100:
                 break
             processed_content = nlp_process(i.content)  # 没有移除数字
+            print("@  {} : {}".format(app_name,processed_content))
             score_sum = 0
             score['star_num'] = star_score[str(i.star_num)]
             score['hot_key_words'] = keywords_in_content(hot_keywords, processed_content, False) * app_weight  # 关键词计分
-            score['ui_key_words'] , matched_keywords_in_other_app_dict = ui_key_word(ess_keys, processed_content) 
+            score['ui_key_words'] , ui_key_word_dict = ui_key_word(ess_keys, processed_content) 
             score['ui_key_words']=score['ui_key_words'] * app_weight
-            target_app_keys[app_name]=matched_keywords_in_other_app_dict 
+            matched_keywords_in_other_app_dict = list(ui_key_word_dict.keys())
+            for zz in matched_keywords_in_other_app_dict:
+                if zz not in target_app_keys[app_name]:
+                    target_app_keys[app_name].append(zz) 
             target_app_all_keys[app_name]= list(ess_keys)
+            ui_keywords_review[app_name]= ui_key_word_dict
             # score['two_gram_keywords'] = two_gram_key_word(two_keywords, processed_content)
             # score['helpful_num'] = int(i.helpful_num) * 0.25  # bug TypeError: can't multiply sequence by non-int of type 'float'
             # print(score['ui_key_words'])
@@ -193,7 +200,7 @@ def rank_review(app_score_list: list, max_depth=4) -> list:
             #     break
     # 然后对all_review进行排序
     result = sorted(all_review, key=itemgetter(1), reverse=True)
-    return (result[:400], target_app_keys,target_app_all_keys)
+    return (result[:400], target_app_keys,target_app_all_keys,ui_keywords_review)
 
 def two_gram_key_word(two_keywords: dict, content_words: list, weight=False):
     ngrams2_li = [' '.join(w) for w in ngrams( content_words, 2)]
@@ -214,12 +221,12 @@ if __name__ == '__main__':
     s = time.strftime("%Y-%m-%d-%H:%M:%S", time.localtime(time.time()))
     test = util.read_csv("model/data/description/"+app_under_test+".csv")
     print("begin search similar apps")
-    scan_output = descript(test, source_category="Music_and_Audio",
+    scan_output = descript(test, source_category="Productivity",
                            except_files=app_under_test,extend=False, pool_size=32)  # get similar app
     #  scan_output is a list of (file_path, score, score_distribution_list)
     # print(util.get_col(scan_output, [0, 1]))
     print("begin rank reviews")
-    rank_result,target_app_keys,target_app_all_keys = rank_review(scan_output)
+    rank_result,target_app_keys,target_app_all_keys,ui_keywords_review = rank_review(scan_output)
     now = time.strftime("%Y-%m-%d-%H_%M_%S", time.localtime(time.time()))
     # 1. 创建文件对象
     z = open(csv_path +app_under_test+ now + ".csv", 'w', encoding='utf-8', newline='')
@@ -239,6 +246,8 @@ if __name__ == '__main__':
         json.dump(target_app_keys, fp)
     with open(ui_keywords_json_path+app_under_test+'_UI_keywords_target_apps_all.json', 'w') as fp:
         json.dump(target_app_all_keys, fp)
+    with open(ui_keywords_json_path+app_under_test+'_UI_keywords_review.json', 'w') as fp:
+        json.dump(ui_keywords_review, fp)
 
     print("end.")
     print(s)
